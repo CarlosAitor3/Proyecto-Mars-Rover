@@ -2,6 +2,11 @@
 #include <Adafruit_Sensor.h>
 #include <Adafruit_BMP085.h>
 #include <DHT.h>
+#include <WiFi.h>
+
+// --- CREDENCIALES WIFI ---
+const char* ssid = "Aitor_Menta";
+const char* password = "realmadrid";
 
 // Configuración DHT11
 #define DHTPIN 4
@@ -16,6 +21,27 @@ const int MQ7_PIN = 34;
 
 void setup() {
   Serial.begin(115200);
+  delay(1000);
+
+  Serial.println();
+  Serial.print("Conectando a: ");
+  Serial.println(ssid);
+
+  // Inicia la conexión
+  WiFi.begin(ssid, password);
+
+  // Espera hasta que esté conectado
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(500);
+    Serial.print(".");
+  }
+
+  // Mensaje de éxito
+  Serial.println("");
+  Serial.println("¡WiFi conectado!");
+  Serial.print("Dirección IP asignada: ");
+  Serial.println(WiFi.localIP());
+
   Serial.println("--- Iniciando Estación de Sensores 2026 ---");
 
   // Iniciar DHT11
@@ -70,3 +96,4 @@ void loop() {
   delay(2000); // Pausa de 2 segundos entre lecturas
 
 }
+
