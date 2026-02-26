@@ -3,10 +3,16 @@
 #include <Adafruit_BMP085.h>
 #include <DHT.h>
 #include <WiFi.h>
+#include <ThingSpeak.h>
 
 // --- CREDENCIALES WIFI ---
 const char* ssid = "Aitor_Menta";
 const char* password = "realmadrid";
+
+WiFiClient cliente;
+
+const char* apiKey = "6TF99KGWWULA6V2P"; //variables para enviar los datos al ThingSpeak
+unsigned long minumerocanal = 3227073;
 
 // Configuración DHT11
 #define DHTPIN 4
@@ -57,6 +63,8 @@ void setup() {
   pinMode(MQ7_PIN, INPUT);
   
   Serial.println("Sensores listos.");
+
+  ThingSpeak.begin(cliente); //comenzamos la comunicacion con ThingSpeak
 }
 
 void loop() {
@@ -71,6 +79,7 @@ void loop() {
 
   // --- Lectura MQ7 (Monóxido de Carbono) ---
   int mq7_raw = analogRead(MQ7_PIN);
+  ThingSpeak.setField(1,mq7_raw); // ordinal es decir elegir campo, valor de la variable a guardar
   float mq7_voltage = mq7_raw * (3.3 / 4095.0);
 
   // --- Mostrar Datos en Monitor Serie ---
@@ -86,7 +95,8 @@ void loop() {
   Serial.print("Altitud: "); Serial.print(alt_bmp); Serial.println(" m");
 
   // Datos MQ7
-  Serial.print("MQ7 -> Valor Raw: "); Serial.print(mq7_raw);
+  Serial.print("MQ7 -> Valor Raw: "); Serial.print(mq7_raw); 
+  ThingSpeak.writeFields(minumerocanal,apiKey); // comunicacion con ThingSpeak
   Serial.print(" | Voltaje: "); Serial.println(mq7_voltage);
 
   if (mq7_raw > 2000) { // Umbral de ejemplo
